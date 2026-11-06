@@ -1,0 +1,44 @@
+{
+  "name": "finance-planner-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev --webpack --hostname 127.0.0.1",
+    "build": "next build --webpack",
+    "start": "next start --hostname 127.0.0.1",
+    "lint": "eslint .",
+    "typecheck": "node scripts/generate-rpc-types.mjs --check && next typegen && tsc --noEmit",
+    "test": "node --test tests/unit/*.test.ts",
+    "test:db": "node --test tests/db/*.test.mjs",
+    "db:types": "node scripts/generate-rpc-types.mjs",
+    "audit:staging": "node scripts/audit-staging.mjs",
+    "audit:local": "node scripts/audit-local.mjs",
+    "test:integration": "node scripts/http-smoke.mjs"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.119.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lucide-react": "^0.468.0",
+    "next": "16.4.5",
+    "radix-ui": "^1.4.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "recharts": "3.10.1",
+    "tailwind-merge": "^3.0.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.15",
+    "@tailwindcss/postcss": "4.3.4",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "16.4.5",
+    "pg": "^8.23.1",
+    "tailwindcss": "4.3.4",
+    "typescript": "^5.9.3"
+  }
+}
