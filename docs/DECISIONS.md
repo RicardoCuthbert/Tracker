@@ -2,11 +2,37 @@
 
 Date: 2026-11-05. Planning only. No proposal below implies user approval or implementation.
 
+2026-11-07 follow-up: user requests dynamic `Rp 2,600,000` amount-box formatting.
+Accepted for live transaction amounts and opening balances only; reports keep
+existing locale. Canonical integer storage and validation remain unchanged.
+Empty typed category lists now explain the state and offer category creation
+inside the transaction workflow, preserving the draft and selecting the new
+matching category. No automatic income-category provisioning or hosted changes.
+
+2026-11-07 direct transaction-management brief authorizes the existing financial
+baseline for this local integration: whole IDR, Jakarta dates, signed openings,
+expense default, categories/optional notes, same-workspace transfers, versioned
+edits and audited void instead of hard delete. Forms use pending/confirmed save
+states and frozen idempotent retries. Existing transaction kinds stay immutable;
+type changes use void/re-entry. Basic personal/shared accounts only. No automatic
+split, reimbursement, cross-workspace transfer, hosted migration or deployment.
+See [scope and evidence](TRANSACTION_MANAGEMENT.md). No release approval inferred.
+
 Implementation update — 2026-11-06: user explicitly authorized database/security tests and Google sign-in, excluding transaction UI integration and remote destructive changes. [DATABASE.md](DATABASE.md) records delivered behavior, setup and evidence. Google OAuth supersedes D17's password-only proposal for this slice. DOMAIN_RULES financial defaults are the implemented baseline; not a real-data launch approval. O01 remains excluded beyond shared opening funds/tracked spending; O02 operations stay gated; O03/O05 lifecycle APIs remain unavailable. Identity-bound invitation acceptance implements the requested verified-membership boundary without sending messages. No approval from Valen or release disposition is inferred.
 
 Status vocabulary: **Required** = user brief; **Proposed** = engineering recommendation for review; **Open** = unresolved behavior with a release/implementation gate. Changing a required item needs an explicit user instruction. Record later decisions here with date, rationale, consequences, and links to changed requirements/tests.
 
 ## Requirements and recommended decisions
+
+2026-11-07 direct user decision: **allow every verified signup**. This supersedes
+D17's invite-only provisioning and O02's operator identity allowlist. Email/password
+signup/sign-in supplements Google. D01 now means one optional shared workspace per
+user, without a global household singleton. Two participants is the protected
+default capacity; no user-facing capacity editor. Invitations bind recipient UUID,
+expire in seven days, reserve a seat, and require explicit acceptance. No user
+directory or invitation emails. O03 removal/leave/transfer and O05 deletion remain
+unimplemented. O02 MFA/recovery/session/rate-limit production decisions remain.
+See [implementation, configuration and evidence](AUTH_WORKSPACES.md).
 
 2026-11-07 authorization: audit and controlled local remediation, plus a runtime-guarded read-only workspace view. Technical decisions: separate Auth success from finance authorization/deployment state; retain server-only cookie Auth (no browser client needed for this slice); locally generate RPC types; discover workspaces via a narrow public RPC; read page data in one stable PostgreSQL snapshot; invalidate private views on window/session changes. See [INTEGRATION_AUDIT.md](../INTEGRATION_AUDIT.md) for tests and remote approval gates. No product financial rules or O01–O05 lifecycle/operational decisions changed.
 

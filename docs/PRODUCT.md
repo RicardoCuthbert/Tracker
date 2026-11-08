@@ -2,6 +2,19 @@
 
 Status: planning proposal. Date: 2026-11-05. No implementation authorized.
 
+2026-11-07 transaction-management brief supersedes financial-UI exclusions below:
+local accounts with opening balances, category setup, income/expense/transfer
+create/edit/void, date/month controls and exact derived balances are authorized.
+See [implementation and acceptance evidence](TRANSACTION_MANAGEMENT.md).
+No automatic splits, private-funded shared flows, hosted migrations or deployment.
+
+2026-11-07 Auth/workspace authorization supersedes the initial restrictions below:
+every verified signup receives its own personal workspace; users may create/join
+one shared workspace, initially two participants. No global household singleton or
+operator identity allowlist. Explicit acceptance remains required. Email/password
+and existing Google Auth are supported. See [implementation/setup](AUTH_WORKSPACES.md).
+Financial writes, removal/ownership/deletion lifecycle and hosted deployment remain excluded.
+
 Implementation update — 2026-11-06: user separately authorized database/security tests and Google sign-in. [DATABASE.md](DATABASE.md) records delivered behavior, constrained scope, setup and evidence. Financial screens remain sample data. No real-data release, remote database change or transaction UI integration is implied; operational/lifecycle gates remain.
 
 ## 1. Purpose and sources of truth
@@ -40,9 +53,9 @@ No bank synchronization, payments, debt servicing, tax advice, multi-currency, s
 
 | ID | Requirement | Observable behavior |
 |---|---|---|
-| P01 | Authentication | Separate invite-only accounts; verified identity, sign-in, sign-out, recovery, expired-session handling; anonymous access denied |
+| P01 | Authentication | Separate verified signup accounts; sign-in, sign-out, recovery, expired-session handling; anonymous access denied |
 | P02 | Private workspaces | Exactly one personal workspace per user; other user cannot read or mutate any records or aggregates |
-| P03 | Shared workspace | At most one household workspace for this pair; explicit invitation acceptance; both members can manage shared finances |
+| P03 | Shared workspace | At most one shared workspace per user; two participants initially; explicit invitation acceptance; members can manage shared finances |
 | P04 | Accounts | Manual IDR cash, bank, e-wallet, and savings accounts; name, opening date/balance, history, archive action |
 | P05 | Transactions | Create, view, edit, void income/expense; default expense; date, amount, account, category, description; clear save status |
 | P06 | Transfers | Atomic movement between two accounts in the same workspace; balances change; income/expense do not |
@@ -79,7 +92,7 @@ No synthetic months or monthly setup wizard. Month selection is calendar navigat
 
 ### J01 — Sign in and establish private finances
 
-Provision an allowed identity -> verify/sign in -> create personal workspace idempotently -> explain private visibility -> add account with opening date/balance or skip -> see truthful empty dashboard. Cuthbert and Valen repeat independently. Names are display labels; identity is the authenticated immutable user ID.
+Sign up -> verify/sign in -> create personal workspace automatically/idempotently -> explain private visibility -> add account with opening date/balance or skip -> see truthful empty dashboard. Each person repeats independently. Names are display labels; identity is the authenticated immutable user ID.
 
 ### J02 — Record everyday spending
 
@@ -95,7 +108,7 @@ Choose month/year -> inspect period income and net spending plus closing cash ->
 
 ### J05 — Establish shared household
 
-One person creates the shared workspace -> sees exact shared visibility explanation -> invites the other allowed identity -> other person signs in and explicitly accepts -> both see shared data. Personal data stays separate. Add shared tracked funds/accounts, record one household expense, and update shared budget. Rejoining, removal, and private-funded purchases follow decisions O01/O03, not improvised UI behavior.
+One person creates a shared workspace -> sees exact shared visibility explanation -> invites the other verified identity -> other person signs in and explicitly accepts -> both see shared data. Personal data stays separate. Add shared tracked funds/accounts, record one household expense, and update shared budget. Rejoining, removal, and private-funded purchases follow decisions O01/O03, not improvised UI behavior.
 
 ### J06 — Reserve savings
 

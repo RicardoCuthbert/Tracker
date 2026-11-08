@@ -2,11 +2,19 @@ import { redirect } from 'next/navigation';
 import { verifiedSession } from '@/lib/supabase/session';
 import { financeReader, validWorkspaceId } from '@/lib/supabase/finance';
 import { financialError, monthRange } from '@/lib/supabase/errors';
-import { formatIDR } from '@/lib/prototype';
+import { formatIDR, monthLabel, shortDate } from '@/lib/prototype';
 import { FinancialNotice, LiveHeading, SampleLink } from '@/features/workspaces/views';
+import { FinancialDialog } from '@/features/transactions/forms';
+import { validFinancialDate } from '@/features/transactions/validation';
+import { jakartaDate } from '@/lib/prototype';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { LiveShell } from '@/features/workspaces/live-shell';
+import { SpendingChart } from '@/features/prototype/spending-chart';
+import { ArrowDownLeft, ArrowLeftRight, ArrowUpRight, ShoppingBasket, Wallet } from 'lucide-react';
 
 export default async function WorkspacePage({ params, searchParams }: {
-  params: Promise<{ workspaceId: string }>; searchParams: Promise<{ month?: string | string[] }>;
+  params: Promise<{ workspaceId: string }>; searchParams: Promise<{ month?: string | string[]; afterDate?: string; afterId?: string }>;
 }) {
   const session = await verifiedSession();
   if (!session.ok) {
@@ -15,22 +23,56 @@ export default async function WorkspacePage({ params, searchParams }: {
   }
   const { workspaceId: w } = await params;
   if (!validWorkspaceId(w)) return <FinancialNotice error={financialError({ code: '42501' })} retry="/workspaces" />;
-  const { month } = await searchParams;
+  const { month, afterDate, afterId } = await searchParams;
   const range = Array.isArray(month) ? null : monthRange(month);
   if (!range) return <section className="panel"><h2>Invalid month</h2><a className="text-link" href={`/w/${w}`}>Use current Jakarta month</a></section>;
   const reader = financeReader(session.client);
   const snapshot = await reader.overview(w, range.start);
   if (!snapshot.ok) return <><LiveHeading email={session.user.email} /><FinancialNotice error={snapshot.error} retry={`/w/${w}?month=${range.month}`} /><SampleLink /></>;
-  const { workspace, accounts, report: totals, transactions } = snapshot.data;
-  return <><LiveHeading email={session.user.email} /><a className="text-link mb-4" href="/workspaces">All authorized workspaces</a>
-    <div className="page-heading"><div><h2>{workspace.name}</h2><p>{workspace.kind === 'personal' ? 'Personal · Private to you' : 'Shared · Members only'}</p></div>
-      <form method="get" className="grid gap-2"><label htmlFor="live-month">Report month · Asia/Jakarta</label><input className="border rounded-md p-2" id="live-month" type="month" name="month" defaultValue={range.month} required /><button className="text-link" type="submit">View month</button></form></div>
-    <section className="summary-strip" aria-label="Recorded monthly totals">{[
-      ['Income', formatIDR(totals.income)], ['Net spending', formatIDR(totals.netSpending)], ['Closing cash', totals.closingCash === null ? 'Unavailable' : formatIDR(totals.closingCash)],
-    ].map(([label, value]) => <div className="summary-item" key={label}><p className="summary-label">{label}</p><p className="text-2xl break-words">{value}</p></div>)}</section>
-    <p className="small mb-6">Gross expenses {formatIDR(totals.grossExpenses)} · Refunds {formatIDR(totals.refunds)} · Cash as of {totals.asOf ?? 'unavailable (future month or no configured cash)'}. Reservations do not change cash.</p>
-    <section className="panel grid gap-4 mb-6"><h2>Accounts · Current recorded balances</h2>{accounts.length === 0 ? <p>No accounts configured. This does not mean a zero bank balance.</p> : accounts.map(a => <div key={a.id} className="border-t pt-4"><h3>{a.name}</h3><p>Balance {formatIDR(a.balance)} · Reserved {formatIDR(a.reserved)}</p>{BigInt(a.shortfall) > 0n && <p>Underfunded reservations: {formatIDR(a.shortfall)}</p>}</div>)}</section>
-    <section className="panel grid gap-4"><h2>Recorded transactions · {range.month}</h2><p className="small muted">First 50 entries in date order. Transfers and corrections are listed separately from income/spending. Voided entries remain visible.</p>
-      {transactions.length === 0 ? <p>No transactions recorded for this month.</p> : <div className="overflow-x-auto"><table className="transaction-table"><caption className="sr-only">Database transaction records for the selected workspace and month</caption><thead><tr><th scope="col">Date</th><th scope="col">Type</th><th scope="col">Description</th><th scope="col">Amount · IDR</th></tr></thead><tbody>{transactions.map(t => <tr key={t.id}><td>{t.economicDate}</td><td>{t.kind}{t.voided ? ' · Voided' : ''}</td><td className="break-words">{t.description || '—'}</td><td className="money">{formatIDR(t.amount)}</td></tr>)}</tbody></table></div>}
-    </section><SampleLink /></>;
+  const { workspace, accounts, categories, report: totals } = snapshot.data;
+  let transactions = snapshot.data.transactions;
+  if (afterDate !== undefined || afterId !== undefined) {
+    if (typeof afterDate !== 'string' || typeof afterId !== 'string' || !validWorkspaceId(afterId) ||
+      !validFinancialDate(afterDate, jakartaDate(new Date())) || afterDate < range.start || afterDate >= range.until)
+      return <section className="panel"><h2>Invalid transaction page</h2><a href={`/w/${w}?month=${range.month}`}>Return to first page</a></section>;
+    const page = await reader.transactions(w, range.start, range.until, { date: afterDate, id: afterId });
+    if (!page.ok) return <FinancialNotice error={page.error} retry={`/w/${w}?month=${range.month}`} />;
+    transactions = page.data;
+  }
+  const formProps = { workspace: w, workspaceName: workspace.name, actor: session.user.id, today: jakartaDate(new Date()), accounts, categories };
+  const last = transactions.at(-1);
+  const colors = ['#0284c7', '#d91670', '#0369a1', '#be185d'];
+  const breakdown = totals.categories.filter(c => BigInt(c.spent) !== 0n).map((c, i) => ({ id: c.id, name: c.name, amount: c.spent, color: colors[i % colors.length] }));
+  return <LiveShell workspace={workspace} email={session.user.email}>
+    <div className="page-heading" id="overview"><div><h1>Your month, in focus.</h1><p>{workspace.name} · {monthLabel(range.month)}</p></div>
+      <div className="heading-actions live-heading-actions"><form method="get" className="ledger-period"><label htmlFor="live-month" className="sr-only">Report month · Asia/Jakarta</label><Input id="live-month" type="month" name="month" defaultValue={range.month} required /><Button variant="outline" type="submit">View month</Button></form>
+        <FinancialDialog key={`${session.user.id}:${w}:transaction`} {...formProps} operation="transaction" disabled={!accounts.some(a => !a.archived)} /></div></div>
+    <section className="summary-strip" aria-label="Recorded monthly totals">
+      <div className="summary-item"><p className="summary-label"><ArrowDownLeft size={16} aria-hidden="true" />Income</p><p className="summary-value positive">{formatIDR(totals.income)}</p><p className="small muted">Recorded income this month</p></div>
+      <div className="summary-item"><p className="summary-label"><ArrowUpRight size={16} aria-hidden="true" />Net spending</p><p className="summary-value">{formatIDR(totals.netSpending)}</p><p className="small muted">Gross {formatIDR(totals.grossExpenses)} · Refunds {formatIDR(totals.refunds)}</p></div>
+      <div className="summary-item"><p className="summary-label"><Wallet size={16} aria-hidden="true" />Closing cash</p><p className="summary-value">{totals.closingCash === null ? 'Unavailable' : formatIDR(totals.closingCash)}</p><p className="small muted">{totals.asOf ? `As of ${shortDate(totals.asOf)}, ${totals.asOf.slice(0, 4)}` : 'Future month or no configured cash'}</p></div>
+    </section>
+    <div className="dashboard-grid live-dashboard-grid">
+      <section className="panel"><div className="panel-heading"><div><h2>Where your money went</h2><p className="small muted">Net spending by category · IDR</p></div></div>
+        {breakdown.length === 0 ? <div className="state-panel"><Wallet size={28} aria-hidden="true" /><h3>No spending to show</h3><p>Record an expense to see your category breakdown.</p></div> : <div className="spending-composition"><SpendingChart data={breakdown} total={totals.netSpending} />
+          <table className="live-category-table"><caption className="sr-only">Exact net spending by category for the whole month</caption><thead><tr><th scope="col">Category</th><th scope="col">Net spending</th></tr></thead><tbody>{breakdown.map(c => <tr key={c.id}><th scope="row"><span className="swatch" style={{ background: c.color }} aria-hidden="true" />{c.name}</th><td>{formatIDR(c.amount)}</td></tr>)}</tbody></table></div>}
+      </section>
+      <section className="panel" id="accounts"><div className="panel-heading"><div><h2>Your accounts</h2><p className="small muted">Current recorded balances</p></div><FinancialDialog key={`${session.user.id}:${w}:account`} {...formProps} operation="account" /></div>
+        {accounts.length === 0 ? <div className="state-panel"><Wallet size={28} aria-hidden="true" /><h3>Add your first account</h3><p>Start with its opening balance. Opening funds are not income.</p></div> : <div className="live-account-list">{accounts.map(a => <div key={a.id}><h3>{a.name}{a.archived ? ' · Archived' : ''}</h3><p className="live-account-balance">{formatIDR(a.balance)}</p><p className="small muted">Reserved {formatIDR(a.reserved)}</p>{BigInt(a.balance) < 0n && <p className="small text-destructive">Negative balance. Check your entries.</p>}{BigInt(a.shortfall) > 0n && <p className="small text-destructive">Underfunded: {formatIDR(a.shortfall)}</p>}</div>)}</div>}
+        <p className="small muted mt-4">Manually recorded. Not a bank connection.</p>
+      </section>
+    </div>
+    <section className="panel transaction-panel live-transactions" id="transactions"><div className="panel-heading"><div><h2>The latest in your ledger</h2><p className="small muted">{monthLabel(range.month)} · {transactions.length} entries on this page</p></div><FinancialDialog key={`${session.user.id}:${w}:category`} {...formProps} operation="category" /></div>
+      {transactions.length === 0 ? <div className="state-panel"><ArrowLeftRight size={28} aria-hidden="true" /><h3>{afterId ? 'No more transactions on this page.' : 'No transactions recorded for this month.'}</h3><p>Choose another month or add a transaction above.</p></div> : <table className="transaction-table live-transaction-table"><caption className="sr-only">Database transaction records for the selected workspace and month</caption><thead><tr><th scope="col">Transaction</th><th scope="col" className="secondary-cell">Date</th><th scope="col">Amount · IDR</th><th scope="col">Actions</th></tr></thead><tbody>{transactions.map(t => {
+        const Icon = t.kind === 'transfer' ? ArrowLeftRight : t.kind === 'income' || t.kind === 'refund' ? ArrowDownLeft : ShoppingBasket;
+        const account = accounts.find(a => a.id === t.accountId)?.name ?? 'Unavailable account';
+        const category = categories.find(c => c.id === t.categoryId)?.name;
+        return <tr key={t.id}><td><div className="transaction-description"><span className="entry-icon"><Icon size={18} aria-hidden="true" /></span><div><p className="live-entry-title">{t.description || `${t.kind.charAt(0).toUpperCase()}${t.kind.slice(1)} transaction`}</p><p className="small muted">{account}{t.destinationAccountId ? ` → ${accounts.find(a => a.id === t.destinationAccountId)?.name ?? 'Unavailable account'}` : category ? ` · ${category}` : ''}</p><p className="entry-detail">{t.economicDate}</p></div></div></td>
+          <td className="secondary-cell muted">{t.economicDate}</td><td className="live-entry-amount"><span>{t.kind === 'expense' ? '−' : t.kind === 'income' || t.kind === 'refund' ? '+' : ''}{formatIDR(t.amount)}</span><p className="entry-type">{t.kind}{t.voided ? ' · Voided' : ''}</p></td>
+          <td className="live-entry-actions">{!t.voided && <div>{['income', 'expense', 'transfer'].includes(t.kind) && <FinancialDialog key={`${session.user.id}:${w}:${t.id}:edit`} {...formProps} operation="transaction" transaction={t} compact />}<FinancialDialog key={`${session.user.id}:${w}:${t.id}:void`} {...formProps} operation="void" transaction={t} compact /></div>}</td></tr>;
+      })}</tbody></table>}
+      <div className="table-footer"><p>Transfers do not count as income or spending. Voided entries retain their history.</p><nav className="flex flex-wrap gap-4" aria-label="Transaction pages">{afterId && <a className="text-link" href={`/w/${w}?month=${range.month}#transactions`}>First page</a>}
+        {transactions.length === 50 && last && <a className="text-link" href={`/w/${w}?month=${range.month}&afterDate=${last.economicDate}&afterId=${last.id}#transactions`}>Next page</a>}</nav></div>
+    </section>
+  </LiveShell>;
 }

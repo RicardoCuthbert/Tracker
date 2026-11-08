@@ -6,11 +6,15 @@ import { XIcon } from "lucide-react"
 import { Dialog as DialogPrimitive } from "radix-ui"
 
 import { Button } from "@/components/ui/button"
+import { PortalContainer, PortalConcealed } from './portal-container'
 
 function Dialog({
+  modal = true,
+  onOpenChange,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+  const concealed = React.useContext(PortalConcealed)
+  return <DialogPrimitive.Root data-slot="dialog" modal={modal && !concealed} onOpenChange={open => { if (!concealed) onOpenChange?.(open) }} {...props} />
 }
 
 function DialogTrigger({
@@ -56,7 +60,7 @@ function DialogContent({
   showCloseButton?: boolean
 }) {
   return (
-    <DialogPortal data-slot="dialog-portal">
+    <DialogPortal data-slot="dialog-portal" container={React.useContext(PortalContainer)}>
       <DialogOverlay />
       <DialogPrimitive.Content
         data-slot="dialog-content"

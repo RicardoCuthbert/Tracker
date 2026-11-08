@@ -9,10 +9,10 @@ export function FinancialNotice({ error, retry }: { error: FinancialFailure; ret
 }
 
 export function LiveHeading({ email }: { email?: string }) {
-  return <header className="page-heading"><div><h1>Your workspaces</h1><p className="break-all">{email}</p><p>Connected database · Read only</p></div>
+  return <header className="page-heading"><div><h1>Your workspaces</h1><p>Choose a space for your everyday finances.</p><p className="small break-all">{email}</p></div>
     <SignOutButton /></header>;
 }
 
 export function SampleLink() {
-  return <p className="small mt-6"><Link href="/" prefetch={false}>Explore separate sample workspace</Link></p>;
+  return <p className="small mt-6"><Link href="/budgets" prefetch={false}>Explore separate sample budgets and goals</Link></p>;
 }

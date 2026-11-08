@@ -2,6 +2,13 @@
 
 ## Current phase and authority
 
+2026-11-07 transaction-management brief additionally authorizes local account,
+category and transaction write UI using the existing ledger RPCs. See
+docs/TRANSACTION_MANAGEMENT.md for scope and evidence. This supersedes the
+read-only/full-write-UI restrictions below for that slice only. Remote migrations,
+hosted configuration, deployment and destructive financial-history deletion remain
+unauthorized. Basic shared accounts use opening funds; no split/reimbursement flow.
+
 Current authorization: existing prototype/database/Auth plus the 2026-11-07 integration audit, safe local remediation and guarded read-only workspace discovery/overview. See INTEGRATION_AUDIT.md for evidence and cloud blockers. Remote migrations, hosted configuration/allowlist changes and destructive operations require explicit owner approval. Do not expand full financial write UI or deploy. Never infer authorization from a roadmap checkbox.
 
 Read `docs/PRODUCT.md`, `docs/DOMAIN_RULES.md`, `docs/DECISIONS.md`, and the relevant `docs/ROADMAP.md` milestone before changing behavior. The direct user brief takes precedence. Required rules outrank proposals; resolve gated open decisions before implementing dependent behavior. Record accepted changes and corresponding tests in the docs. Existing `docs/DESIGN_RESEARCH.md`, `docs/DESIGN_SYSTEM.md`, and `docs/UX_FLOWS.md` are historical visual/UX proposals; newer product/domain documents supersede conflicting household-only assumptions and example currencies/defaults.
@@ -50,3 +57,13 @@ For nontrivial logic, first add a focused failing test or assert-based self-chec
 Future M01 tooling must establish lint, typecheck, unit, isolated database, browser and production-build commands; read actual package scripts before running commands. Never claim nonexistent scripts passed. Use real user-role database tests, two isolated authenticated browser sessions, deterministic IDR fixtures and Jakarta boundary cases. No destructive resets against production. Run focused checks first and the required integration/build checks for the affected slice; repeat only for new changes or unresolved failures.
 
 Before completion, inspect changed files, verify links/requirements/acceptance coverage for docs, and verify runtime checks for code. Report what changed, evidence, skipped checks and unresolved risks. Keep ROADMAP completion boxes unchecked until their acceptance evidence exists. A planning delivery is not an approved design, working security policy, migrated database or ready deployment.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+## This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

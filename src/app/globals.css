@@ -243,5 +243,77 @@ h3 { font-size: 16px; font-weight: 600; }
 .trend-table-scroll { overflow-x: auto; }
 .trend-values .transaction-table thead { display: table-header-group; }
 .trend-values .transaction-table td, .trend-values .transaction-table th { padding: 12px; }
+/* The live workspace shares the reference shell, spacing and compact ledger rows. */
+.live-boundary:has(> .live-app) { max-width: none; padding: 0; }
+.live-workspace-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 24px; }
+.live-workspace-card { display: grid; gap: 12px; text-decoration: none; transition: border-color 150ms, transform 150ms; }
+.live-workspace-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+.live-workspace-card:active { transform: translateY(0); }
+.live-sharing summary { min-height: 44px; cursor: pointer; font-weight: 600; padding: 8px 0; }
+.live-app .skip-link { z-index: 60; }
+.live-workspace-switch { display: flex; align-items: center; border: 1px solid var(--border); border-radius: 6px; text-decoration: none; }
+.live-email { overflow-wrap: anywhere; min-width: 0; }
+.live-topbar-identity { display: flex; align-items: center; justify-content: flex-end; gap: 16px; min-width: 0; }
+.live-app .topbar { justify-content: space-between; }
+.live-app .page-heading > div { min-width: 0; }
+.live-app .heading-actions { max-width: none; flex-wrap: wrap; }
+.ledger-period { display: flex; align-items: center; gap: 8px; }
+.ledger-period input { width: 164px; }
+.live-app .summary-value, .live-account-balance { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.live-dashboard-grid > .panel { scroll-margin-top: 24px; }
+.live-dashboard-grid .panel-heading { flex-wrap: wrap; }
+.live-app .state-panel { min-height: 180px; padding: 24px 16px; }
+.live-account-list > div { padding: 16px 0; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; }
+.live-account-list > div:first-child { padding-top: 0; }
+.live-account-balance { font-size: 24px; line-height: 32px; font-weight: 600; margin: 4px 0; }
+.live-category-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; }
+.live-category-table th, .live-category-table td { padding: 12px 0; border-bottom: 1px solid var(--border); overflow-wrap: anywhere; text-align: left; font-weight: 400; }
+.live-category-table td, .live-category-table th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+.live-category-table .swatch { display: inline-block; margin-right: 8px; }
+.live-transactions { scroll-margin-top: 24px; }
+.live-transaction-table { table-layout: fixed; }
+.live-transaction-table th, .live-transaction-table td { padding: 16px; overflow-wrap: anywhere; }
+.live-transaction-table th:nth-child(2) { width: 120px; }
+.live-transaction-table th:nth-child(3) { width: 180px; text-align: right; }
+.live-transaction-table th:last-child { width: 144px; }
+.live-entry-title { font-weight: 600; }
+.live-transaction-table .transaction-description > div { min-width: 0; }
+.live-entry-amount { text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+.live-entry-actions > div { display: flex; justify-content: flex-end; gap: 8px; }
+.live-entry-actions [data-variant] { padding: 8px 12px; }
+.live-app [data-variant], .live-financial-dialog [data-variant] { transition: background-color 150ms, transform 150ms; }
+.live-app [data-variant]:active, .live-financial-dialog [data-variant]:active { transform: translateY(1px); }
+.live-app .nav-link:hover, .live-workspace-switch:hover { background: var(--muted); }
+.live-app:has(#transactions:target) a[href="#transactions"], .live-app:has(#accounts:target) a[href="#accounts"], .live-app:not(:has(#transactions:target, #accounts:target)) .nav-link[href="#overview"] { background: var(--muted); color: var(--primary); }
+.live-type-switch { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid #738197; border-radius: 6px; padding: 4px; gap: 4px; }
+.live-type-switch [aria-pressed=true] { background: var(--action-pink); color: white; }
+.live-type-switch [data-variant] { padding: 8px; }
+.live-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.live-form-actions { display: flex; flex-direction: row-reverse; gap: 12px; padding-top: 16px; border-top: 1px solid var(--border); }
+.live-financial-dialog .dialog-context { padding-top: 0; margin-bottom: 0; }
+@media (min-width:1024px) { .live-topbar-identity form { display: none; } }
+@media (max-width:1023px) {
+  .live-app .topbar .brand { flex-shrink: 0; }
+  .live-topbar-identity { gap: 8px; flex-wrap: wrap; }
+  .live-app .topbar { align-items: flex-start; }
+}
+@media (max-width:767px) {
+  .live-app .topbar .brand { font-size: 14px; }
+  .live-topbar-identity { max-width: 45%; font-size: 12px; }
+  .live-topbar-identity .live-email { font-size: 12px; }
+  .live-app .live-heading-actions { display: grid; grid-template-columns: 1fr; width: 100%; }
+  .ledger-period input { flex: 1; width: 0; min-width: 0; }
+  .live-app .summary-value { font-size: 28px; }
+  .live-transaction-table, .live-transaction-table tbody { display: block; width: 100%; }
+  .live-transaction-table tr { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--border); padding: 16px; gap: 12px; }
+  .live-transaction-table td, .live-transaction-table td:last-child { padding: 0; border: 0; width: auto; }
+  .live-transaction-table .live-entry-actions { grid-column: 1 / -1; }
+  .live-transaction-table .live-entry-actions:empty { display: none; }
+  .live-entry-actions > div { justify-content: flex-start; }
+  .live-transaction-table .entry-detail { font-size: 12px; }
+  .live-transaction-table .small { font-size: 12px; line-height: 20px; }
+  .live-financial-dialog .live-form-actions { position: sticky; bottom: 0; background: white; padding: 16px 0 max(16px, env(safe-area-inset-bottom)); }
+}
+@media (max-width:359px) { .live-form-grid { grid-template-columns: 1fr; } }
 @media(max-width:1279px) { .spending-composition { grid-template-columns: 1fr; } }
 @media(max-width:767px) { .donut-chart { height: 240px; } .donut-total strong { font-size: 18px; } .monthly-trend { margin-bottom: 24px; } .trend-chart { height: 240px; } }

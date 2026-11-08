@@ -1,5 +1,11 @@
 # Supabase Integration Audit
 
+Later 2026-11-07 transaction brief adds local financial write UI using existing
+RPCs. `/`, `/accounts` and `/transactions` now lead to authenticated workspace
+discovery. See [transaction implementation/evidence](docs/TRANSACTION_MANAGEMENT.md).
+The audit below remains historical; its hosted deployment blockers are not
+resolved or re-certified by local transaction tests. No remote migration applied.
+
 Date: **2026-11-07**, Asia/Bangkok. Scope: existing Next.js 16 application; configured Supabase staging; safe local remediation. No remote migration, hosted configuration, allowlist or real financial record was changed. Google consent/account entry was not automated.
 
 ## 1. Executive Summary
@@ -186,6 +192,11 @@ Machine-readable sanitized evidence: `test-results/staging-audit.json` and `test
 Native tests create/drop only their own randomly named local database. They do not accept remote TEST_DATABASE_URL hosts. No staging fixture reset occurred. The local PostgreSQL/preview servers are stopped when the audit completes.
 
 ## 7. Next Development Recommendation
+
+Superseding scope, 2026-11-07: user separately authorized Auth/workspace management
+and every verified signup. [AUTH_WORKSPACES.md](docs/AUTH_WORKSPACES.md) records
+local implementation, migration 004, changed authorization policy and new checks.
+The remote blockers and unapplied-migration warnings in this audit still apply.
 
 First obtain catalog evidence, approve/apply only missing migrations, authorize the two verified UUIDs, then complete the manual Auth/privacy/read checklist. Do not expand features while these P0 items remain.
 

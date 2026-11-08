@@ -11,6 +11,7 @@
     "typecheck": "node scripts/generate-rpc-types.mjs --check && next typegen && tsc --noEmit",
     "test": "node --test tests/unit/*.test.ts",
     "test:db": "node --test tests/db/*.test.mjs",
+    "test:e2e": "node tests/e2e/transactions.mjs",
     "db:types": "node scripts/generate-rpc-types.mjs",
     "audit:staging": "node scripts/audit-staging.mjs",
     "audit:local": "node scripts/audit-local.mjs",

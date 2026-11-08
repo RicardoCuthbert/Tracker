@@ -4,6 +4,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
 import { randomUUID } from 'node:crypto';
 import { nativeDatabase } from './native-database.mjs';
+import { validateFinancialForm } from '../../src/features/transactions/validation.ts';
 
 test('database schema and real authenticated-role security', async (t) => {
   const db = process.env.TEST_DATABASE_URL ? await nativeDatabase(process.env.TEST_DATABASE_URL) : new PGlite();
@@ -49,11 +50,11 @@ test('database schema and real authenticated-role security', async (t) => {
   await q('insert into auth.users values ($1,now()),($2,now()),($3,now()),($4,null)', ids);
   await q('insert into ledger.allowed_users values ($1),($2),($3)', [alice, bob, unverified]);
 
-  await t.test('anonymous, unlisted and unverified identities fail closed', async () => {
+  await t.test('anonymous and unverified identities fail closed; verified signup needs no allowlist', async () => {
     await as(null, 'anon');
     await denied(() => rpc('ensure_personal_workspace'));
     await denied(() => q('select * from ledger.accounts'));
-    await as(stranger); await denied(() => rpc('ensure_personal_workspace'));
+    await as(stranger); assert.match(await rpc('ensure_personal_workspace'), /^[0-9a-f-]{36}$/);
     await as(unverified); await denied(() => rpc('ensure_personal_workspace'));
   });
 
@@ -79,7 +80,10 @@ test('database schema and real authenticated-role security', async (t) => {
     assert.deepEqual((await rpc('list_workspaces')).map(w => w.id).sort(), [wa, shared].sort());
     await as(bob);
     assert.deepEqual((await rpc('list_workspaces')).map(w => w.id), [wb]);
-    await as(stranger); await denied(() => rpc('list_workspaces'));
+    await as(stranger);
+    const own = await rpc('list_workspaces');
+    assert.equal(own.length, 1); assert.equal(own[0].kind, 'personal');
+    assert.ok(![wa, wb, shared].includes(own[0].id));
     await as(null, 'anon'); await denied(() => rpc('list_workspaces'));
     await as(alice);
   });
@@ -310,6 +314,59 @@ test('database schema and real authenticated-role security', async (t) => {
       where n.nspname='public' and p.prosecdef`);
     assert.ok(functions.length >= 12);
     for (const f of functions) { assert.equal(f.anonymous, false, f.name); assert.ok(f.proconfig.includes('search_path=""'), f.name); }
+  });
+
+  await t.test('UI commands reconcile account openings, income/expense CRUD, edited dates/accounts and transfer CRUD', async () => {
+    await as(stranger);
+    const w = await rpc('ensure_personal_workspace');
+    const actor = stranger;
+    const submit = async (values) => {
+      const form = new FormData();
+      for (const [key, value] of Object.entries({ workspace: w, actor, op: randomUUID(), id: randomUUID(), version: '0', ...values })) form.set(key, value);
+      const input = validateFinancialForm(form, '2026-11-07');
+      assert.ok(input.ok, JSON.stringify(input));
+      const { name, args } = input.command;
+      if (name === 'save_financial_record') return rpc(name, [args.w, args.op, args.entity, JSON.stringify(args.p), args.expected_version]);
+      if (name === 'save_transaction') return rpc(name, [args.w, args.op, JSON.stringify(args.p), args.expected_version]);
+      return rpc(name, [args.w, args.op, args.item, args.expected_version, args.reason]);
+    };
+    const a = await submit({ operation: 'account', name: 'UI Cash', kind: 'cash', opening_balance: '1.000.000', opening_date: date });
+    const b = await submit({ operation: 'account', name: 'UI Savings', kind: 'savings', opening_balance: '0', opening_date: date });
+    const category = await submit({ operation: 'category', name: 'UI Salary', kind: 'income' });
+    const balances = async () => Object.fromEntries((await rpc('read_workspace', [w])).accounts.map(a => [a.id, a.balance]));
+    assert.equal((await rpc('monthly_report', [w, '2026-01-01'])).income, '0');
+    const income = await submit({ operation: 'transaction', kind: 'income', amount: '2.000.000', account_id: a.id, category_id: category.id, economic_date: date });
+    const expense = await submit({ operation: 'transaction', amount: '300.000', account_id: a.id, economic_date: date, description: 'Fixture lunch' });
+    assert.equal(expense.kind, 'expense');
+    assert.equal((await balances())[a.id], '2700000');
+    // Move the expense to another account and month; postings must replace, never accumulate.
+    const edited = await submit({ operation: 'transaction', id: expense.id, version: expense.version, amount: '200.000', account_id: b.id,
+      category_id: expense.category_id, economic_date: '2026-02-01', description: 'Corrected fixture' });
+    assert.deepEqual(await balances(), { [a.id]: '3000000', [b.id]: '-200000' });
+    assert.equal((await rpc('monthly_report', [w, '2026-01-01'])).gross_expenses, '0');
+    assert.equal((await rpc('monthly_report', [w, '2026-02-01'])).gross_expenses, '200000');
+    const feb = await rpc('read_transactions', [w, '2026-02-01', '2026-03-01']);
+    assert.equal(feb.length, 1); assert.equal(feb[0].description, 'Corrected fixture');
+    assert.equal(feb[0].postings[0].account_id, b.id);
+    const transfer = await submit({ operation: 'transaction', kind: 'transfer', amount: '500.000', account_id: a.id, destination_account_id: b.id, economic_date: date });
+    assert.deepEqual(await balances(), { [a.id]: '2500000', [b.id]: '300000' });
+    const moved = await submit({ operation: 'transaction', id: transfer.id, version: transfer.version, kind: 'transfer', amount: '400.000', account_id: a.id, destination_account_id: b.id, economic_date: date });
+    assert.deepEqual(await balances(), { [a.id]: '2600000', [b.id]: '200000' });
+    const jan = await rpc('monthly_report', [w, '2026-01-01']);
+    assert.equal(jan.income, '2000000'); assert.equal(jan.gross_expenses, '0'); assert.equal(jan.closing_cash, '3000000');
+    for (const item of [moved, edited, income]) await submit({ operation: 'void', id: item.id, version: item.version, reason: 'Fixture removal' });
+    assert.deepEqual(await balances(), { [a.id]: '1000000', [b.id]: '0' });
+    assert.equal((await rpc('monthly_report', [w, '2026-01-01'])).income, '0');
+    assert.ok((await rpc('read_transactions', [w, '2026-01-01', '2026-03-01'])).every(t => t.voided_at));
+    // More than one page, including same-date ties and retained voids.
+    for (let i = 0; i < 51; i++) await transaction(w, { amount: '1', account_id: a.id, economic_date: date });
+    const first = await rpc('read_transactions', [w, '2026-01-01', '2026-02-01', null, null, 50]);
+    const last = first.at(-1);
+    const next = await rpc('read_transactions', [w, '2026-01-01', '2026-02-01', last.economic_date, last.id, 50]);
+    assert.equal(first.length, 50); assert.equal(next.length, 3);
+    assert.equal(new Set([...first, ...next].map(t => t.id)).size, 53);
+    assert.ok([...first, ...next].every(t => t.economic_date >= '2026-01-01' && t.economic_date < '2026-02-01'));
+    await as(alice);
   });
 
   await t.test('concurrent retries, refunds, reservations, revisions and expense locking', { skip: !db.connect && 'Run TEST_DATABASE_URL against dedicated local PostgreSQL for multiple connections' }, async () => {

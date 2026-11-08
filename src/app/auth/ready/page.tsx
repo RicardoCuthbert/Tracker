@@ -20,5 +20,5 @@ export default async function AuthReadyPage({ searchParams }: { searchParams: Pr
   return <main className="content grid gap-6"><SessionChanged /><h1>Authentication confirmed.</h1><p className="break-all">{session.user.email}</p>
     {access.ok ? <><p>Your personal workspace access is confirmed.</p><Button asChild><a href="/workspaces">Open authorized workspaces</a></Button></> : <FinancialNotice error={access.error} retry="/auth/ready" />}
     {status === "signout-failed" && <p role="alert">Sign-out failed. Try again.</p>}
-    <SignOutButton /><Button asChild variant="outline"><Link href="/" prefetch={false}>Explore separate sample workspace</Link></Button></main>;
+    <SignOutButton /><Button asChild variant="outline"><Link href="/budgets" prefetch={false}>Explore separate sample budgets and goals</Link></Button></main>;
 }

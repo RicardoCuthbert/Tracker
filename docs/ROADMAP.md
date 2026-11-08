@@ -2,6 +2,12 @@
 
 Status: proposed plan; no application work authorized. Date: 2026-11-05.
 
+2026-11-07 transaction brief authorizes and implements the scoped M03–M05 UI
+integration described in [TRANSACTION_MANAGEMENT.md](TRANSACTION_MANAGEMENT.md).
+Account/category setup, income/expense/transfer CRUD, month paging and exact
+balances are covered locally. Full milestones stay unchecked: broader search,
+category lifecycle, refund/correction entry and hosted/release gates remain.
+
 Implementation update — 2026-11-06: the user authorized a cross-milestone database/security-test slice plus Google sign-in. [DATABASE.md](DATABASE.md) maps schema/RPC behavior and evidence across M02–M08. Existing prototype tooling supports lint/typecheck/unit/build; test:db now supports isolated PostgreSQL role and native concurrency tests. No transaction UI integration, hosted OAuth/PostgREST acceptance, or real-data launch was performed. Milestone boxes remain unchecked because complete acceptance evidence is still pending.
 
 **Goal:** deliver a private two-person manual finance application whose balances, privacy boundaries and daily workflows can be demonstrated correct.
@@ -31,6 +37,12 @@ Planned verification interfaces after M01 establishes tooling: `npm run lint`, `
 **Acceptance:** `10000` and `10.000` parse to 10000n; `10,50`, `10.00`, negative/zero transaction amounts, exponent strings and cap+1 fail; zero openings/budgets are valid. Rp1 trillion survives API serialization unchanged; sums exceeding Number.MAX_SAFE_INTEGER remain exact. October/November, December/January, leap February and Jakarta midnight boundaries pass. Strict types/lint/tests/build pass; CI uses dummy/test secrets only. `.env.example` contains names, no secret values. No bank/AI/PWA dependencies installed.
 
 ## M02 — Authentication and workspace isolation
+
+2026-11-07: [Auth/workspace implementation and evidence](AUTH_WORKSPACES.md).
+Every verified signup replaces allowlist provisioning by direct user decision.
+Local email Auth UI and workspace creation/invitation/acceptance delivered.
+Hosted Auth/PostgREST, two-browser acceptance and operational recovery/MFA gates
+remain unverified; milestone boxes remain unchecked.
 
 **Depends on:** M01; O02/O03 disposition. **Covers:** P01–P03 foundation. **Targets:** `src/lib/supabase/*`, auth/onboarding routes, `src/features/workspaces/*`, future `supabase/migrations/*`, `tests/db/workspace-access.test.ts`, `tests/e2e/auth.spec.ts`.
 

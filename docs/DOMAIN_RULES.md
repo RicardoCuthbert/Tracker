@@ -2,6 +2,14 @@
 
 Status: proposed implementable model, not a migration. Date: 2026-11-05.
 
+2026-11-07: [transaction-management integration](TRANSACTION_MANAGEMENT.md) now
+uses these existing ledger rules through verified-session Server Actions. Signed
+openings (including zero), positive integer entries, immutable transaction kinds,
+date/account/category/notes edits, atomic transfer edits and audited voids retain
+the SQL baseline. Delete in the UI means void, never financial-history erasure.
+Tests cover form commands through actual SQL, edited balances/months, pagination,
+lost-response retries, stale revisions and personal/shared isolation.
+
 Implementation update — 2026-11-06: the explicitly requested database slice implements this baseline in [migrations](../supabase/migrations/) with [schema/API documentation and tests](DATABASE.md). Logical budgets/goals/goal_allocation_events below map to ledger.monthly_budgets/savings_goals/goal_contributions. Invites bind verified Auth UUIDs with explicit single-use acceptance, replacing the emailed bearer-token proposal. Private-funded shared flows and membership/deletion lifecycle remain gated. No financial UI integration or real-data release approval.
 Requirement IDs refer to [PRODUCT.md](PRODUCT.md). Decisions/open questions: [DECISIONS.md](DECISIONS.md).
 
@@ -9,7 +17,7 @@ Requirement IDs refer to [PRODUCT.md](PRODUCT.md). Decisions/open questions: [DE
 
 2026-11-07: [integration audit](../INTEGRATION_AUDIT.md) adds typed read boundaries and a consistent-snapshot overview RPC in proposed migration 003. Financial rules below are unchanged. Missing/unavailable hosted RPC signatures and real-identity acceptance remain blocked.
 
-R01. Authenticated user ID, not name/email supplied by a request, identifies the actor. Cuthbert and Valen each own exactly one personal workspace. Personal ownership is immutable in normal application operations. Each may belong to at most the one shared workspace for this pair.
+R01. Authenticated user ID, not name/email supplied by a request, identifies the actor. Every verified signup owns exactly one personal workspace, automatically provisioned on verification and idempotently checked on entry. Personal ownership is immutable in normal application operations. Each user may belong to at most one active shared workspace. Different households remain isolated. Shared capacity defaults to two in protected workspace policy; ordinary users cannot raise it. This user-approved 2026-11-07 policy replaces the allowlist/global singleton; see [implementation/tests](AUTH_WORKSPACES.md).
 
 R02. A personal workspace has exactly its owner as member. Only that identity can read/write its records, children, totals, audit entries, and search results. Shared membership requires explicit valid invitation acceptance. Shared members can read and change shared financial data equally; only the workspace owner manages invitations/membership. Neither shared membership nor a payer/creator field grants access to a personal workspace.
 
@@ -27,7 +35,7 @@ R07. IDR only. Persist rupiah as PostgreSQL `bigint`; never floating point. Indi
 
 R08. Use `bigint` for TypeScript calculation; decimal integer strings across JSON boundaries. A single validated parser/formatter owns conversion. Never use `parseFloat`, fractional rounding, or JavaScript `number` for financial arithmetic. Convert chart values to `number` only after explicit safe-integer bounds checks; use an exact table fallback outside that bound. Full exact strings remain available for labels/tooltips. Progress ratios are display values only, never accounting inputs.
 
-R09. Proposed input grammar: ungrouped digits or correctly grouped Indonesian thousands dots, optional surrounding whitespace. Thus `10000` and `10.000` mean Rp10,000; `10,50`, `10.00`, negative strings, exponent notation, NaN, Infinity, and embedded text are rejected. No implicit currency-symbol stripping. The form labels the accepted format. Server repeats validation. Format display as IDR with zero decimals and locale `id-ID`.
+R09. User-approved 2026-11-07 amount inputs display `Rp 2,600,000` dynamically, with comma thousands separators and no decimals. The live financial form accepts ungrouped digits, correctly grouped comma thousands, its explicit `Rp` prefix, or legacy correctly grouped Indonesian thousands dots. Server normalizes only this grammar before the existing exact integer/cap validation. `10,50`, `10.00`, mixed separators, exponent notation, NaN, Infinity and embedded text remain rejected; no rounding or arbitrary symbol stripping. Only opening balances permit negative/zero amounts. Stored money stays integer strings/bigint; report display retains locale `id-ID`.
 
 R10. Economic date is a PostgreSQL `date` (`YYYY-MM-DD`), interpreted in Asia/Jakarta. Creation/edit timestamps are UTC instants (`timestamptz`); render using Jakarta where shown. Device timezone and deployment region do not set financial months. Dates have no artificial midnight UTC conversion. Default transaction date is today's Jakarta date. MVP rejects future transaction/opening dates; budget months and goal deadlines can be future.
 
@@ -115,7 +123,7 @@ UUID primary keys unless a composite key is stated. Store creation/update instan
 |---|---|---|
 | `profiles` | `user_id -> auth.users`, display name | No public directory; avoid global partner-profile read; share only member display names through authorized membership reads |
 | `workspaces` | `id`, kind personal/shared, `owner_user_id`, name, IDR, Asia/Jakarta | One personal workspace per owner; one configured shared household; owner change restricted |
-| `workspace_members` | `(workspace_id, user_id)`, role owner/member, joined/revoked timestamps | Personal owner only; shared max two allowed identities; membership writes restricted |
+| `workspace_members` | `(workspace_id, user_id)`, role owner/member, joined/revoked timestamps | Personal owner only; shared capacity defaults to two verified identities; membership writes restricted |
 | `workspace_invites` | workspace, intended verified identity/email, hashed single-use token, inviter, expiry, accepted/revoked timestamps | Owner-created; recipient-bound acceptance; no plaintext token persistence/logging; atomic capacity check |
 | `accounts` | workspace, name, kind, opening date, signed opening balance, archived timestamp, version | Workspace-qualified unique ID for child references; no stored mutable running balance |
 | `categories` | workspace, name, income/expense kind, system marker, archived timestamp | One Uncategorized expense category; immutable kind once used |

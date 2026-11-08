@@ -11,6 +11,6 @@ Use the existing DOMAIN_RULES account-effects ledger. Separate income/expense ro
 
 Files: `supabase/migrations/*`, `tests/db/*`, `src/lib/supabase/*`, `src/app/auth/*`, `src/app/sign-in/page.tsx`, `src/proxy.ts`, `.env.example`, package manifest/lock, product/domain/decision/roadmap annotations and schema documentation.
 
-Constrained scope: shared tracked accounts only (O01); invite-only allowlisted verified Auth IDs, Google OAuth (O02); no owner transfer, remove/leave/account deletion APIs (O03/O05). Financial proposals in DOMAIN_RULES are the implementation baseline for this requested slice (O04); not a real-data release approval.
+Constrained scope: shared tracked accounts only (O01); verified Auth IDs, email/password signup and Google OAuth (O02); no owner transfer, remove/leave/account deletion APIs (O03/O05). The [2026-11-07 Auth/workspace implementation](AUTH_WORKSPACES.md) supersedes the original allowlist and global singleton with every verified signup and isolated households. Financial proposals in DOMAIN_RULES are the implementation baseline for this requested slice (O04); not a real-data release approval.
 
 Review focus: simultaneous retries/refunds/reservations; JWT identity versus caller-supplied actor; membership revoked after a successful operation; exact aggregate strings above JS safe integer; immutable financial history. PostgreSQL engine tests must be distinguished from hosted Auth/PostgREST and multi-connection concurrency checks.

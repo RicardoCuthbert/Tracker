@@ -1,5 +1,25 @@
 # Database layer — 2026-11-06
 
+2026-11-07 transaction-management follow-up: the live workspace UI now invokes
+existing `save_financial_record`, `save_transaction` and `void_transaction` RPCs
+through authenticated Server Actions. No new migration or hosted database change.
+See [scope, commands and evidence](TRANSACTION_MANAGEMENT.md). Historical
+sample-only/read-only statements below describe the earlier delivery.
+
+2026-11-07 Auth/workspace change: migration **004** supersedes the allowlist,
+global singleton and literal two-member rules described historically below.
+`ledger.allowed()` now requires a verified Auth identity. A protected Auth trigger
+provisions personal workspace/profile/system category on verification; 004 also
+backfills existing verified identities. `ensure_personal_workspace` remains an
+authorized idempotent retry. Each identity may join one active shared workspace;
+separate households coexist. `workspaces.member_limit` is operator-only, default 2
+(personal: 1). Capacity and pending seat reservations serialize under workspace
+locks; identity locks prevent concurrent cross-household acceptance. Revoked owners
+cannot issue invitations and their pending invitations cannot be accepted.
+`list_workspace_invitations()` exposes only owner/recipient pending invitation
+metadata. Legacy `allowed_users` stays private and no longer grants authorization.
+No existing migrations were edited. [Setup, tests and limitations](AUTH_WORKSPACES.md).
+
 2026-11-07 audit update: [INTEGRATION_AUDIT.md](../INTEGRATION_AUDIT.md) supersedes the earlier integration/test status below. Staging Auth/Google redirect and ledger API exclusion were checked; all original RPC signatures currently return PGRST202. Proposed migration 003 adds read-only discovery and one-snapshot overview, locally tested only. Guarded `/workspaces` and `/w/[workspaceId]` routes are prepared; authenticated cloud acceptance and remote application remain blocked. Original 001/002 migrations are unchanged.
 
 User authorized this database/security-test slice and Google sign-in. No remote resources/data changed. Financial screens remain the sample-data prototype.

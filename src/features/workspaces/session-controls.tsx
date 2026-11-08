@@ -17,5 +17,5 @@ export function SessionChanged() {
 }
 
 export function SignOutButton() {
-  return <form action={signOut} onSubmit={invalidateOtherWindows}><Button variant="outline">Sign out</Button></form>;
+  return <form action={signOut} onSubmit={invalidateOtherWindows} data-session-action><Button variant="outline">Sign out</Button></form>;
 }

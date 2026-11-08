@@ -11,6 +11,7 @@ export type Database = {
       create_shared_workspace: { Args: Record<string, never>; Returns: string };
       ensure_personal_workspace: { Args: Record<string, never>; Returns: string };
       invite_member: { Args: { w: string; recipient: string }; Returns: string };
+      list_workspace_invitations: { Args: Record<string, never>; Returns: Json };
       list_workspaces: { Args: Record<string, never>; Returns: Json };
       monthly_report: { Args: { w: string; month_start: string }; Returns: Json };
       read_audit: { Args: { w: string; after_id?: string }; Returns: Json };
