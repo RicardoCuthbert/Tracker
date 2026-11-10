@@ -180,3 +180,16 @@ User requested spending breakdown as a pie chart. Recharts Pie/PieChart replaces
 User supplied donut reference and requested monthly financial/spending trend. Breakdown now uses a ring with exact total centered and category table beside it on wide screens, stacked on mobile. Colors: #0284C7, #38BDF8, #BAE6FD, #D91670; labels preserve meaning beyond color. Negative/all-zero/unsafe guards remain.
 
 Added one line chart: closing cash (solid sky blue) and net spending (dashed hot pink), one shared IDR scale with exact table. Existing authorized-workspace sample snapshots only; no invented historical months or new finance calculations. Missing months remain unknown/gaps; unsafe values use the exact table. Two personal samples (October and November), one shared sample. November is explicitly partial through 5 Nov, so lower spending is not presented as improved financial health.
+
+## Part 5.5 supplied illustration integration — 2026-11-10
+
+Direct user brief authorizes local branding and illustration integration only.
+The accepted 2026-11-06 sky blue/white/hot pink palette, typography and financial
+hierarchy remain. Finance Planner now uses the supplied flower-cat face crop for
+navigation and Next file-convention icons. Decorative illustrations are limited
+to empty states; they never replace numeric zero or cover charts/values. Fixed
+160×120 illustration boxes shrink to 128×96 on mobile; no new animation or dark
+theme. Shared and personal empties retain explicit workspace context. Error,
+loading and financial calculations stay unchanged. See [inventory, usage map,
+screenshots and verification](VISUAL_IDENTITY.md). Reserved illustrations do not
+authorize future goals, onboarding or financial workflows.

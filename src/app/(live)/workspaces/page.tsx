@@ -1,3 +1,4 @@
+import { BrandLogo } from '@/components/brand/brand-logo';
 import { redirect } from 'next/navigation';
 import { verifiedSession } from '@/lib/supabase/session';
 import { financeReader } from '@/lib/supabase/finance';
@@ -6,7 +7,7 @@ import { FinancialNotice, LiveHeading } from '@/features/workspaces/views';
 import { ManagementForm } from '@/features/workspaces/management-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowRight, BookOpen, LockKeyhole, Users } from 'lucide-react';
+import { ArrowRight, LockKeyhole, Users } from 'lucide-react';
 
 export default async function WorkspacesPage() {
   const session = await verifiedSession();
@@ -18,7 +19,7 @@ export default async function WorkspacesPage() {
   const provision = await reader.provisionPersonal();
   if (!provision.ok) return <><LiveHeading email={session.user.email} /><FinancialNotice error={provision.error} retry="/workspaces" /></>;
   const [result, invitations] = await Promise.all([reader.listWorkspaces(), reader.invitations()]);
-  return <main className="live-discovery"><a href="/workspaces" className="brand mb-8"><span className="brand-mark"><BookOpen size={20} aria-hidden="true" /></span>Finance Planner</a><LiveHeading email={session.user.email} />{!result.ok ? <FinancialNotice error={result.error} retry="/workspaces" /> :
+  return <main className="live-discovery"><BrandLogo className="mb-8" /><LiveHeading email={session.user.email} />{!result.ok ? <FinancialNotice error={result.error} retry="/workspaces" /> :
     result.data.length === 0 ? <section className="panel grid gap-4"><h2>No accessible workspaces</h2><p>No membership was returned for your identity.</p><a className="text-link" href="/auth/ready">Check personal workspace setup</a></section> :
       <section className="live-workspace-cards" aria-label="Authorized workspaces">{result.data.map(w => <a key={w.id} className="panel live-workspace-card" href={`/w/${w.id}`}>
         {w.kind === 'personal' ? <LockKeyhole size={22} aria-hidden="true" /> : <Users size={22} aria-hidden="true" />}<h2>{w.name}</h2><p className="muted">{w.kind === 'personal' ? 'Personal · Private to you' : 'Shared · Visible to its members'}</p><span className="text-link">Open workspace<ArrowRight size={16} aria-hidden="true" /></span></a>)}</section>}

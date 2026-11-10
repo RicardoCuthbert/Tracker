@@ -1,5 +1,7 @@
 "use client";
 
+import { EmptyState } from "@/components/brand/empty-state";
+
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowDownLeft, ArrowLeftRight, ArrowRight, ArrowUpRight, CircleHelp, Home, Info, Landmark, Plane, Search, ShieldCheck, ShoppingBasket, Wallet } from "lucide-react";
@@ -54,7 +56,7 @@ function EntryDetails({ entry }: { entry: Entry }) {
 }
 
 export function TransactionTable({ entries }: { entries: Entry[] }) {
-  if (!entries.length) return <div className="state-panel"><Search size={24} aria-hidden="true" /><h2>No matching transactions</h2><p>Try another description or choose all transaction types.</p></div>;
+  if (!entries.length) return <EmptyState heading="h2" title="No matching transactions" description="Try another description or choose all transaction types." />;
   return <table className="transaction-table"><caption className="sr-only">Sample transactions, exact IDR amounts</caption><thead><tr><th scope="col">Transaction</th><th className="secondary-cell" scope="col">Category</th><th className="secondary-cell" scope="col">Date</th><th scope="col">Amount</th></tr></thead><tbody>{entries.map((entry) => {
     const incoming = ["Income", "Refund", "Correction"].includes(entry.type);
     const Icon = entry.type === "Transfer" ? ArrowLeftRight : incoming ? ArrowDownLeft : ShoppingBasket;
@@ -88,13 +90,13 @@ export function BudgetsScreen() {
 }
 
 export function GoalsScreen() {
-  const { workspace } = usePrototype();
-  return <><PageHeading title="Make room for what matters." description="Small intentions. Something to look forward to." monthly={false} add={false} /><ContentState requireSnapshot={false}><p className="small muted mb-6">Current reservations as of 5 November 2026 · Sample data, independent of report month</p><div className="page-grid">{goals[workspace].map((goal) => <section className="panel goal-card" key={goal.category}><GoalIcon icon={goal.icon} /><p className="small muted">{goal.category}</p><h2>{goal.name}</h2><p className="goal-amount money">{formatIDR(goal.reserved)}</p><p className="small muted">reserved toward {formatIDR(goal.target)}</p><div className="budget-track" role="progressbar" aria-label={goal.category} aria-valuenow={goal.progress} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${goal.progress}%` }} /></div><div className="budget-row-foot"><span>{goal.progress}% reserved</span><span>{goal.deadline}</span></div><div className="insight"><Wallet size={16} aria-hidden="true" /><span>Reserved against {goal.account}. No money moved.</span></div></section>)}</div><p className="notice"><Info size={18} aria-hidden="true" /><span>Goals are earmarked reservations, not expenses or bank-locked funds. This overview does not allocate or release real money.</span></p></ContentState></>;
+  const { workspace, setPreview } = usePrototype();
+  return <><PageHeading title="Make room for what matters." description="Small intentions. Something to look forward to." monthly={false} add={false} /><ContentState requireSnapshot={false} empty={<EmptyState heading="h2" illustration="goals" title="No sample savings goals" description="Goals earmark funds for the things ahead. Explore the sample goals when ready." action={<Button variant="outline" onClick={() => setPreview("ready")}>View sample goals</Button>} />}><p className="small muted mb-6">Current reservations as of 5 November 2026 · Sample data, independent of report month</p><div className="page-grid">{goals[workspace].map((goal) => <section className="panel goal-card" key={goal.category}><GoalIcon icon={goal.icon} /><p className="small muted">{goal.category}</p><h2>{goal.name}</h2><p className="goal-amount money">{formatIDR(goal.reserved)}</p><p className="small muted">reserved toward {formatIDR(goal.target)}</p><div className="budget-track" role="progressbar" aria-label={goal.category} aria-valuenow={goal.progress} aria-valuemin={0} aria-valuemax={100}><span style={{ width: `${goal.progress}%` }} /></div><div className="budget-row-foot"><span>{goal.progress}% reserved</span><span>{goal.deadline}</span></div><div className="insight"><Wallet size={16} aria-hidden="true" /><span>Reserved against {goal.account}. No money moved.</span></div></section>)}</div><p className="notice"><Info size={18} aria-hidden="true" /><span>Goals are earmarked reservations, not expenses or bank-locked funds. This overview does not allocate or release real money.</span></p></ContentState></>;
 }
 
 export function AccountsScreen() {
-  const { workspace } = usePrototype();
-  return <><PageHeading title="A place for every rupiah." description="Your manually tracked accounts, in one workspace." monthly={false} add={false} /><ContentState requireSnapshot={false}><p className="small muted mb-6">Current sample balances · As of 5 November 2026 · Not bank verified</p><div className="page-grid">{accountSnapshots[workspace].map((account) => <section className="panel" key={account.name}><Landmark size={22} className="text-primary mb-6" aria-hidden="true" /><h2>{account.name}</h2><p className="small muted mt-2 mb-6">{account.kind}</p><p className="goal-amount money">{formatIDR(account.balance)}</p><p className="small muted">IDR · Manual sample balance</p></section>)}</div><div className="notice"><Info size={18} aria-hidden="true" /><p>Opening balances are not income. This prototype cannot connect a bank or move money.</p></div></ContentState></>;
+  const { workspace, setPreview } = usePrototype();
+  return <><PageHeading title="A place for every rupiah." description="Your manually tracked accounts, in one workspace." monthly={false} add={false} /><ContentState requireSnapshot={false} empty={<EmptyState heading="h2" illustration="accounts" title="No sample accounts" description="An opening balance starts an account. It is not income; zero is a valid balance." action={<Button variant="outline" onClick={() => setPreview("ready")}>View sample accounts</Button>} />}><p className="small muted mb-6">Current sample balances · As of 5 November 2026 · Not bank verified</p><div className="page-grid">{accountSnapshots[workspace].map((account) => <section className="panel" key={account.name}><Landmark size={22} className="text-primary mb-6" aria-hidden="true" /><h2>{account.name}</h2><p className="small muted mt-2 mb-6">{account.kind}</p><p className="goal-amount money">{formatIDR(account.balance)}</p><p className="small muted">IDR · Manual sample balance</p></section>)}</div><div className="notice"><Info size={18} aria-hidden="true" /><p>Opening balances are not income. This prototype cannot connect a bank or move money.</p></div></ContentState></>;
 }
 
 export function SettingsScreen() {

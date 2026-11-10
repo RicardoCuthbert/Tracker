@@ -1,5 +1,10 @@
 # Transaction management — 2026-11-07
 
+2026-11-10: [milestone review](MILESTONE_REVIEW_2026-11-10.md) fixes the distinction
+between no spending activity and spending fully offset by refunds. Browser
+regression asserts exact gross/refund/net/cash outcomes through local SQL/RLS;
+no accounting or financial write behavior changed.
+
 2026-11-08: [UX review and evidence](UX_REVIEW_2026-11-08.md) supersedes the
 visual polish below. The live page now restores the reference sidebar/topbar,
 first-screen entry, compact rows, real full-month category donut/table and a

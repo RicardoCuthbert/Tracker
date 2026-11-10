@@ -149,3 +149,11 @@ Sequence: M01 -> M02 -> M03 -> M04 -> M05 -> M06 -> M07 -> M08 -> M09 -> M10. Sh
 F01: approved private-funded household/reimbursement and controlled-sharing model; prove disclosure and non-duplication first. F02: imports/recurring entries and export; preview, mapping and retry/deduplication acceptance. F03: credit/investment models; prove principal/earnings/consumption separation. F04: read-only AI over authorized deterministic reports; prove isolation, consent and injection boundaries. F05: installable PWA shell, then separate offline privacy/write-conflict design. None is part of current MVP implementation authorization.
 
 Stop after planning. Review these documents before choosing an implementation milestone.
+
+## Part 5.5 — local visual identity slice (2026-11-10)
+
+Supplied twelve-asset audit/optimization, shared branding, file-convention icons,
+metadata and reusable empty states delivered under the direct visual-only brief.
+See [inventory, screenshots and local checks](VISUAL_IDENTITY.md). Existing
+financial milestone acceptance boxes remain unchanged. Hosted release, broader
+search/goals behavior and the next milestone are not included.

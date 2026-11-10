@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { usePathname } from "next/navigation";
-import { ArrowDownUp, ArrowUpRight, BookOpen, CalendarDays, ChartNoAxesCombined, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Ellipsis, FlaskConical, LayoutDashboard, LockKeyhole, PiggyBank, Settings2, ShieldCheck, Users, Wallet } from "lucide-react";
+import { ArrowDownUp, ArrowUpRight, CalendarDays, ChartNoAxesCombined, ChevronDown, ChevronLeft, ChevronRight, CircleHelp, Ellipsis, FlaskConical, LayoutDashboard, LockKeyhole, PiggyBank, Settings2, ShieldCheck, Users, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -17,7 +18,6 @@ const navigation = [
   { href: "/accounts", label: "Accounts", icon: Wallet },
   { href: "/goals", label: "Savings goals", icon: PiggyBank },
 ];
-export function Brand() { return <Link href="/" className="brand"><span className="brand-mark"><BookOpen size={20} aria-hidden="true" /></span><span>Finance Planner</span></Link>; }
 
 export function WorkspaceSwitcher() {
   const { workspace, setWorkspace } = usePrototype();
@@ -34,7 +34,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   return <>
     <a href="#main-content" className="skip-link">Skip to content</a>
     <aside className="sidebar" aria-label="Application sidebar">
-      <Brand /><WorkspaceSwitcher />
+      <BrandLogo href="/" /><WorkspaceSwitcher />
       <nav aria-label="Main navigation">{navigation.map(({ href, label, icon: Icon }) => <Link key={href} href={href} className={`nav-link ${path === href ? "active" : ""}`} aria-current={path === href ? "page" : undefined}><Icon size={18} aria-hidden="true" />{label}</Link>)}</nav>
       <div className="sidebar-bottom">
         <Link className={`nav-link ${path === "/settings" ? "active" : ""}`} href="/settings" aria-current={path === "/settings" ? "page" : undefined}><Settings2 size={18} aria-hidden="true" />Settings & preview</Link>
@@ -44,7 +44,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
       </div>
     </aside>
     <div className="app-main">
-      <header className="topbar"><div className="topbar-left">{workspace === "personal" ? <LockKeyhole size={16} aria-hidden="true" /> : <Users size={16} aria-hidden="true" />}<span className="small muted">{workspace === "personal" ? "Your personal space" : "Your shared space"}</span></div><Brand /><span className="prototype-badge"><span className="prototype-dot" />Warm Ledger · Frontend prototype</span><span className="topbar-identity small">Cuthbert <span className="muted">/ Demo</span></span></header>
+      <header className="topbar"><div className="topbar-left">{workspace === "personal" ? <LockKeyhole size={16} aria-hidden="true" /> : <Users size={16} aria-hidden="true" />}<span className="small muted">{workspace === "personal" ? "Your personal space" : "Your shared space"}</span></div><BrandLogo href="/" /><span className="prototype-badge"><span className="prototype-dot" />Warm Ledger · Frontend prototype</span><span className="topbar-identity small">Cuthbert <span className="muted">/ Demo</span></span></header>
       <main id="main-content" className="content" tabIndex={-1}>
         <div className="mobile-workspace"><WorkspaceSwitcher /></div>
         <div className="mock-note"><FlaskConical size={16} aria-hidden="true" /><span>Sample data only. No bank connection, authentication or saved financial records.</span></div>

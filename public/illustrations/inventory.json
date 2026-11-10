@@ -1,0 +1,134 @@
+[
+  {
+    "source": "Poster.svg",
+    "sourceSha256": "0c28ede98c4b584e389c4445fe64a98f8acd40ff2758baca38a12a34c8559dcd",
+    "file": "welcome-together.webp",
+    "width": 3420,
+    "height": 2437,
+    "originalBytes": 1524802,
+    "optimizedBytes": 603958,
+    "kind": "lossless raster",
+    "use": "Reserved: welcome"
+  },
+  {
+    "source": "Poster (1).svg",
+    "sourceSha256": "a858f2d3364b63100ed85d115749e3a05ff7b2a6a68de259d60ff5a68e0e22c6",
+    "file": "start-with-a-pencil.svg",
+    "width": 534,
+    "height": 403,
+    "originalBytes": 67226,
+    "optimizedBytes": 64042,
+    "kind": "vector",
+    "use": "First account"
+  },
+  {
+    "source": "Poster (2).svg",
+    "sourceSha256": "11c298bf02db7450c62a8266dc99d5e8fc9faafc0c71bfd5c34a876d6e5723b1",
+    "file": "reading-together.svg",
+    "width": 519,
+    "height": 312,
+    "originalBytes": 80375,
+    "optimizedBytes": 77068,
+    "kind": "vector",
+    "use": "Empty transactions and search"
+  },
+  {
+    "source": "Poster (3).svg",
+    "sourceSha256": "fba4a3e8230e34025d0dcb49e9a12bdde7a0c3a50af20ba4f15412752c6a153a",
+    "file": "walking-together.svg",
+    "width": 618,
+    "height": 451,
+    "originalBytes": 101816,
+    "optimizedBytes": 97273,
+    "kind": "vector",
+    "use": "Reserved: shared onboarding"
+  },
+  {
+    "source": "Poster (4).svg",
+    "sourceSha256": "3bf22da846ec9364f112b35d838915a14eba8a82706e7a6187b0ec09952d6029",
+    "file": "care-for-the-cat.svg",
+    "width": 562,
+    "height": 360,
+    "originalBytes": 62431,
+    "optimizedBytes": 59760,
+    "kind": "vector",
+    "use": "Reserved: savings care"
+  },
+  {
+    "source": "Poster (5).svg",
+    "sourceSha256": "a29a4d918c8870abae773ea6988a91f4c449047d1f712583354021103bc4de41",
+    "file": "plan-together.svg",
+    "width": 432,
+    "height": 446,
+    "originalBytes": 109980,
+    "optimizedBytes": 105502,
+    "kind": "vector",
+    "use": "Empty shared transactions"
+  },
+  {
+    "source": "Poster (6).svg",
+    "sourceSha256": "be568992af02933b58539623b01da0925ca81fb521f4814dbcbd94160297986d",
+    "file": "small-high-five.svg",
+    "width": 432,
+    "height": 428,
+    "originalBytes": 64412,
+    "optimizedBytes": 61520,
+    "kind": "vector",
+    "use": "Reserved: small milestones"
+  },
+  {
+    "source": "Poster (7).svg",
+    "sourceSha256": "bc42d4d4d5972b43b81adb172f835e6d61e386fdd305f557f453c7754e0263af",
+    "file": "cat-at-rest.svg",
+    "width": 432,
+    "height": 296,
+    "originalBytes": 45064,
+    "optimizedBytes": 43333,
+    "kind": "vector",
+    "use": "Reserved: calm placeholder"
+  },
+  {
+    "source": "Poster (8).svg",
+    "sourceSha256": "04e080d449905c52a42812f71b3c0546f421af6c7363ca467df6cdc906cffc0f",
+    "file": "celebrate-progress.webp",
+    "width": 3181,
+    "height": 3231,
+    "originalBytes": 1458196,
+    "optimizedBytes": 586420,
+    "kind": "lossless raster",
+    "use": "Completed goal"
+  },
+  {
+    "source": "Poster (9).svg",
+    "sourceSha256": "1cec5e66098e7368a46e92971db0076529354c5ae84caf656ad649910d7b3d83",
+    "file": "flowers-for-you.webp",
+    "width": 2268,
+    "height": 2198,
+    "originalBytes": 380989,
+    "optimizedBytes": 70502,
+    "kind": "lossless raster",
+    "use": "Empty savings goals; brand source"
+  },
+  {
+    "source": "Poster (10).svg",
+    "sourceSha256": "7fea0e1cc35f5cfdab0307f0a6d4765cee439109bc0d352e579ef4600d3deabe",
+    "file": "comfort-the-cat.svg",
+    "width": 432,
+    "height": 450,
+    "originalBytes": 78680,
+    "optimizedBytes": 75275,
+    "kind": "vector",
+    "use": "Unused: avoid distress in empty states"
+  },
+  {
+    "source": "Poster (11).svg",
+    "sourceSha256": "d4fe5f566d9496a902ebd3d11928e7a3419e618b5da9a1456d6202b8d8f5e69f",
+    "file": "empty-wallet.webp",
+    "width": 2168,
+    "height": 2329,
+    "originalBytes": 318362,
+    "optimizedBytes": 57984,
+    "kind": "lossless raster",
+    "use": "Unused: never imply empty data means no money"
+  }
+]

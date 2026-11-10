@@ -1,4 +1,5 @@
-import { ArrowDownUp, BookOpen, ChevronDown, LayoutDashboard, LockKeyhole, Users, Wallet } from 'lucide-react';
+import { BrandLogo } from '@/components/brand/brand-logo';
+import { ArrowDownUp, ChevronDown, LayoutDashboard, LockKeyhole, Users, Wallet } from 'lucide-react';
 import type { Workspace } from '@/lib/supabase/finance';
 import { SignOutButton } from './session-controls';
 
@@ -10,7 +11,7 @@ const sections = [
 
 export function LiveShell({ workspace, email, children }: { workspace: Workspace; email?: string; children: React.ReactNode }) {
   const Icon = workspace.kind === 'personal' ? LockKeyhole : Users;
-  const brand = <a href="/workspaces" className="brand"><span className="brand-mark"><BookOpen size={20} aria-hidden="true" /></span>Finance Planner</a>;
+  const brand = <BrandLogo />;
   const switcher = <a href="/workspaces" className="workspace-control live-workspace-switch" aria-label={`Switch workspace: ${workspace.name}, ${workspace.kind}`}>
     <Icon size={18} aria-hidden="true" /><span className="workspace-copy"><span className="muted">{workspace.kind === 'personal' ? 'Private' : 'Shared'}</span><strong>{workspace.name}</strong></span><ChevronDown size={16} aria-hidden="true" />
   </a>;

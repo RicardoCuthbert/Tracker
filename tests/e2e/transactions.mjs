@@ -104,8 +104,22 @@ try {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.getByRole('link', { name: /Personal · Private to you/ }).click();
   await page.getByRole('heading', { name: 'Your accounts' }).waitFor();
+  assert.equal(await page.getByRole('heading', { name: 'No spending to show', exact: true }).isVisible(), true);
+  for (const width of [1440, 1024, 768, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.locator('.empty-illustration').evaluateAll(images => Promise.all(images.map(image => image.decode())));
+    assert.equal(await page.locator('.empty-illustration').count(), 3);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await page.screenshot({ path: `test-results/branding-empty-${width}.png`, fullPage: true });
+  }
+  await page.setViewportSize({ width: 1280, height: 900 });
   const workspaceURL = page.url();
   const w = new URL(workspaceURL).pathname.split('/').at(-1);
+  await page.getByRole('link', { name: 'Finance Planner', exact: true }).click();
+  await page.getByRole('heading', { name: 'Your workspaces', exact: true }).waitFor();
+  await page.getByRole('link', { name: /Personal · Private to you/ }).click();
+  await page.getByRole('heading', { name: 'Your accounts', exact: true }).waitFor();
+  assert.equal(page.url(), workspaceURL, 'Brand navigation preserves the authorized personal workspace');
   const pick = async (label, option) => {
     if (label === 'Transaction type') {
       await page.getByRole('group', { name: label, exact: true }).getByRole('button', { name: option, exact: false }).click(); return;
@@ -129,6 +143,8 @@ try {
     await page.getByLabel('Opening date · Jakarta', { exact: true }).fill('2026-01-01');
     await page.getByLabel('Opening balance', { exact: false }).fill(opening); await save();
   }
+  assert.match(await page.locator('.live-account-list').innerText(), /Fixture Savings\s+Rp\s?0/);
+  assert.equal(await page.getByRole('heading', { name: 'Add your first account', exact: true }).count(), 0);
   await page.getByRole('button', { name: 'Add transaction', exact: true }).click();
   await pick('Transaction type', 'income');
   await page.getByLabel('Amount · IDR', { exact: true }).pressSequentially('2600000');
@@ -264,6 +280,9 @@ try {
   const invite = await rpcAs(users[0], 'invite_member', [shared, users[1]]);
   await rpcAs(users[1], 'accept_invite', [invite]);
   await page.bringToFront(); await page.goto(`${origin}/w/${shared}`);
+  assert.equal(await page.locator('#transactions .empty-illustration').getAttribute('src'), '/illustrations/plan-together.svg');
+  await page.locator('#transactions .empty-illustration').evaluate(image => image.decode());
+  await page.screenshot({ path: 'test-results/branding-shared-empty-mobile.png', fullPage: true });
   await page.getByRole('button', { name: 'Add account', exact: true }).click();
   await page.getByLabel('Account name', { exact: true }).fill('Fixture Shared');
   await page.getByLabel('Opening balance', { exact: false }).fill('500.000'); await save();
@@ -287,6 +306,26 @@ try {
   await page.getByText('1@fixture.invalid', { exact: true }).waitFor();
   assert.equal(await page.getByRole('dialog').count(), 0);
   assert.doesNotMatch(await page.locator('body').innerText(), /Draft belonging to the old identity/);
+  const sharedEntries = await rpcAs(users[1], 'read_transactions', [shared, `${month}-01`, `${Number(month.slice(0, 4)) + 1}-01-01`]);
+  const original = sharedEntries.find(entry => entry.kind === 'expense');
+  await rpcAs(users[1], 'save_transaction', [shared, randomUUID(), JSON.stringify({ kind: 'refund', amount: '10000',
+    account_id: original.postings[0].account_id, original_expense_id: original.id, economic_date: today }), 0]);
+  const balanced = await rpcAs(users[1], 'monthly_report', [shared, `${month}-01`]);
+  assert.equal(balanced.gross_expenses, '10000'); assert.equal(balanced.refunds, '10000');
+  assert.equal(balanced.net_spending, '0'); assert.equal(balanced.closing_cash, '500000');
+  await page.goto(`${origin}/w/${shared}`);
+  await page.getByRole('heading', { name: 'Spending and refunds balance out', exact: true }).waitFor();
+  assert.equal(await page.getByRole('heading', { name: 'Spending and refunds balance out', exact: true }).isVisible(), true,
+    'Zero net spending with recorded expenses/refunds must differ from no spending activity');
+  assert.equal(await page.getByText('Record an expense to see your category breakdown.', { exact: true }).isVisible(), false);
+  const sample = await contexts[1].newPage(); sample.on('pageerror', e => errors.push(e.message));
+  await sample.setViewportSize({ width: 375, height: 812 });
+  for (const [route, heading] of [['/budgets', 'A plan for the month.'], ['/goals', 'Make room for what matters.'], ['/settings', 'Your space, thoughtfully set.']]) {
+    await sample.goto(`${origin}${route}`); await sample.bringToFront();
+    await sample.getByRole('heading', { name: heading, exact: true }).waitFor();
+    assert.equal(await sample.locator('.mock-note').isVisible(), true, 'Existing prototype routes remain explicitly separate sample data');
+    assert.equal(await sample.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  }
   assert.deepEqual(errors, []);
   console.log('PASS local browser: dynamic Rp/comma input and caret editing, empty income category recovery/selection with retained draft, account/category creation, expense default, validation/draft, committed-lost retry across blur/access failure, concealed portals, conflict, income, transfer, edit/date/void, month empty state, 320px reflow, identity-change draft clearing, two isolated identities, private denial and shared single counting. Real SQL/RLS; fixture Auth adapter only.');
 } catch (error) {
